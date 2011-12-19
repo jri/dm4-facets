@@ -9,7 +9,7 @@ import de.deepamehta.core.model.AssociationModel;
 import de.deepamehta.core.model.CompositeValue;
 import de.deepamehta.core.model.TopicModel;
 import de.deepamehta.core.model.TopicRoleModel;
-import de.deepamehta.core.service.ClientContext;
+import de.deepamehta.core.service.ClientState;
 import de.deepamehta.core.service.Directives;
 import de.deepamehta.core.service.Plugin;
 
@@ -37,12 +37,12 @@ public class FacetsPlugin extends Plugin implements FacetsService {
     public void associateWithFacetType(long topicId, String facetTypeUri) {
         dms.createAssociation(new AssociationModel("dm4.core.instantiation", 
             new TopicRoleModel(topicId,      "dm4.core.instance"),
-            new TopicRoleModel(facetTypeUri, "dm4.facets.facet")), null);   // clientContext=null
+            new TopicRoleModel(facetTypeUri, "dm4.facets.facet")), null);   // clientState=null
     }
 
     // ### FIXME: partly copied from AttachedDeepaMehtaObject.updateCompositeValue()
     @Override
-    public Topic addFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientContext clientContext,
+    public Topic addFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState,
                                                                               Directives directives) {
         AssociationDefinition assocDef = getAssocDef(facetTypeUri);
         String childTopicTypeUri = assocDef.getPartTopicTypeUri();
@@ -54,7 +54,7 @@ public class FacetsPlugin extends Plugin implements FacetsService {
                 CompositeValue childTopicComp = facet.getCompositeValue();
                 if (childTopic != null) {
                     TopicModel model = new TopicModel(childTopic.getId(), childTopicComp);
-                    childTopic.update(model, clientContext, directives);
+                    childTopic.update(model, clientState, directives);
                 } else {
                     // create and associate child topic
                     childTopic = dms.createTopic(new TopicModel(childTopicTypeUri, childTopicComp), null);
@@ -113,6 +113,6 @@ public class FacetsPlugin extends Plugin implements FacetsService {
     private void associateChildTopic(Topic topic, AssociationDefinition assocDef, long childTopicId) {
         dms.createAssociation(new AssociationModel(assocDef.getInstanceLevelAssocTypeUri(),
             new TopicRoleModel(topic.getId(), assocDef.getWholeRoleTypeUri()),
-            new TopicRoleModel(childTopicId,  assocDef.getPartRoleTypeUri())), null);   // clientContext=null
+            new TopicRoleModel(childTopicId,  assocDef.getPartRoleTypeUri())), null);   // clientState=null
     }
 }
