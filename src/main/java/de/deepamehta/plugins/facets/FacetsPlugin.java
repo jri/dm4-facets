@@ -40,38 +40,22 @@ public class FacetsPlugin extends Plugin implements FacetsService {
             new TopicRoleModel(facetTypeUri, "dm4.facets.facet")), null);   // clientState=null
     }
 
-    // ### FIXME: partly copied from AttachedDeepaMehtaObject.updateCompositeValue()
     @Override
     public Topic addFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState,
                                                                               Directives directives) {
         AssociationDefinition assocDef = getAssocDef(facetTypeUri);
-        String childTopicTypeUri = assocDef.getPartTopicTypeUri();
-        TopicType childTopicType = dms.getTopicType(childTopicTypeUri, null);
-        String assocTypeUri = assocDef.getTypeUri();
-        if (assocTypeUri.equals("dm4.core.composition_def")) {
-            if (childTopicType.getDataTypeUri().equals("dm4.core.composite")) {
-                Topic childTopic = fetchChildTopic(topic, assocDef);
-                CompositeValue childTopicComp = facet.getCompositeValue();
-                if (childTopic != null) {
-                    TopicModel model = new TopicModel(childTopic.getId(), childTopicComp);
-                    childTopic.update(model, clientState, directives);
-                } else {
-                    // create and associate child topic
-                    childTopic = dms.createTopic(new TopicModel(childTopicTypeUri, childTopicComp), null);
-                    associateChildTopic(topic, assocDef, childTopic.getId());
-                    // Note: the child topic must be created right with its composite value.
-                    // Otherwise its label can't be calculated.
-                }
-                return childTopic;
-            } else {
-                throw new RuntimeException("Simple facets not yet supported");
-                // ### setChildTopicValue(assocDefUri, new SimpleValue(value));
-            }
-        } else if (assocTypeUri.equals("dm4.core.aggregation_def")) {
-            throw new RuntimeException("Facet aggregation not yet supported");
+        Topic childTopic = fetchChildTopic(topic, assocDef);
+        if (childTopic != null) {
+            childTopic.update(facet, clientState, directives);
         } else {
-            throw new RuntimeException("Association type \"" + assocTypeUri + "\" not supported");
+            // Note: the type URI of a simplified topic model (as constructed from update requests) is not initialzed.
+            String childTopicTypeUri = assocDef.getPartTopicTypeUri();
+            facet.setTypeUri(childTopicTypeUri);
+            // create and associate child topic
+            childTopic = dms.createTopic(facet, null);
+            associateChildTopic(topic, assocDef, childTopic.getId());
         }
+        return childTopic;
     }
 
     @Override
