@@ -41,17 +41,18 @@ public class FacetsPlugin extends Plugin implements FacetsService {
     }
 
     @Override
-    public Topic addFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState,
+    public Topic setFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState,
                                                                               Directives directives) {
         AssociationDefinition assocDef = getAssocDef(facetTypeUri);
         Topic childTopic = fetchChildTopic(topic, assocDef);
         if (childTopic != null) {
+            // update existing facet
             childTopic.update(facet, clientState, directives);
         } else {
             // Note: the type URI of a simplified topic model (as constructed from update requests) is not initialzed.
             String childTopicTypeUri = assocDef.getPartTopicTypeUri();
             facet.setTypeUri(childTopicTypeUri);
-            // create and associate child topic
+            // create and associate new facet
             childTopic = dms.createTopic(facet, null);
             associateChildTopic(topic, assocDef, childTopic.getId());
         }
@@ -86,8 +87,8 @@ public class FacetsPlugin extends Plugin implements FacetsService {
         String othersRoleTypeUri  = assocDef.getPartRoleTypeUri();
         String othersTopicTypeUri = assocDef.getPartTopicTypeUri();
         //
-        return topic.getRelatedTopic(assocTypeUri, myRoleTypeUri, othersRoleTypeUri, othersTopicTypeUri, true, false);
-        // fetchComposite=true ### FIXME: make fetchComposite a parameter
+        return topic.getRelatedTopic(assocTypeUri, myRoleTypeUri, othersRoleTypeUri, othersTopicTypeUri, true, false,
+            null);  // fetchComposite=true ### FIXME: make fetchComposite a parameter
     }
 
     /**

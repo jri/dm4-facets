@@ -13,13 +13,23 @@ public interface FacetsService extends PluginService {
     void associateWithFacetType(long topicId, String facetTypeUri);
 
     /**
-     * @param   topic           The topic to add the facet to.
-     * @param   facetTypeUri    URI of the facet type.
-     * @param   facet           The facet to add.
+     * Stores a topic facet in the DB.
      *
-     * @return  The facet added.
+     * @param   topic           The topic to be facetted.
+     * @param   facetTypeUri    URI of the facet type.
+     * @param   facet           The facet to store.
+     *
+     * @return  The stored facet.
      */
-    Topic addFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState, Directives directives);
+    Topic setFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState, Directives directives);
 
+    /**
+     * Retrieves a topic facet from the DB.
+     *
+     * @param   topic           The facetted topic.
+     * @param   facetTypeUri    URI of the facet type.
+     *
+     * @return  The retrieved facet.
+     */
     Topic getFacet(Topic topic, String facetTypeUri);
 }
