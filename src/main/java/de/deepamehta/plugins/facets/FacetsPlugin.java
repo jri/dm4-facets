@@ -44,9 +44,9 @@ public class FacetsPlugin extends Plugin implements FacetsService {
     @Override
     public void updateFacet(Topic topic, String facetTypeUri, TopicModel facet, ClientState clientState,
                                                                                 Directives directives) {
-        // ### FIXME: remove updateCompositeValue() from DeepaMehtaObject interface.
         // ### TODO: incorporate the Facets module into the DeepaMehta core.
-        topic.updateCompositeValue(getAssocDef(facetTypeUri), facet, clientState, directives);
+        // ### TODO: many cardinality
+        topic.updateChildTopic(getAssocDef(facetTypeUri), facet, clientState, directives);
     }
 
     @Override
